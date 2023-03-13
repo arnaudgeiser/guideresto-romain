@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FakeItems {
-    
+
     private final Set<RestaurantType> types;
     private final Set<Restaurant> restaurants;
     private final Set<EvaluationCriteria> criterias;
@@ -77,17 +77,17 @@ public class FakeItems {
     public Set<Restaurant> getAllRestaurants(){
         return restaurants;
     }
-    
+
     public Set<EvaluationCriteria> getEvaluationCriterias(){
         return criterias;
     }
-    
+
     public Set<RestaurantType> getRestaurantTypes(){
         return types;
     }
-    
+
     public Set<City> getCities(){
         return cities;
     }
-    
+
 }

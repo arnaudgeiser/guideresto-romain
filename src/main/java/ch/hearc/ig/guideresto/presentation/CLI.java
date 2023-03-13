@@ -11,14 +11,17 @@ import ch.hearc.ig.guideresto.business.EvaluationCriteria;
 import ch.hearc.ig.guideresto.business.Grade;
 import ch.hearc.ig.guideresto.business.Restaurant;
 import ch.hearc.ig.guideresto.business.RestaurantType;
+import ch.hearc.ig.guideresto.persistence.DBOracleConnection;
 import ch.hearc.ig.guideresto.persistence.FakeItems;
 import ch.hearc.ig.guideresto.persistence.RestaurantMapper;
 
 import java.io.PrintStream;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
@@ -36,7 +39,7 @@ public class CLI {
     this.fakeItems = fakeItems;
   }
 
-  public void start() {
+  public void start() throws SQLException {
     println("Bienvenue dans GuideResto ! Que souhaitez-vous faire ?");
     int choice;
     do {
@@ -57,7 +60,7 @@ public class CLI {
     println("0. Quitter l'application");
   }
 
-  private void proceedMainMenu(int choice) {
+  private void proceedMainMenu(int choice) throws SQLException {
     switch (choice) {
       case 1:
         showRestaurantsList();
@@ -89,6 +92,23 @@ public class CLI {
       return Optional.empty();
     }
 
+    // FIXME: La recherche crash ici avec l'Exception suivante car pas chargé
+      // Liste des restaurants :
+      //Exception in thread "main" java.lang.NullPointerException: Cannot invoke "ch.hearc.ig.guideresto.business.City.getZipCode()" because the return value of "ch.hearc.ig.guideresto.business.Localisation.getCity()" is null
+      //	at ch.hearc.ig.guideresto.business.Restaurant.getZipCode(Restaurant.java:31)
+      //	at ch.hearc.ig.guideresto.presentation.CLI.lambda$pickRestaurant$0(CLI.java:97)
+      //	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+      //	at java.base/java.util.HashMap$KeySpliterator.forEachRemaining(HashMap.java:1715)
+      //	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+      //	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+      //	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+      //	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+      //	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+      //	at ch.hearc.ig.guideresto.presentation.CLI.pickRestaurant(CLI.java:98)
+      //	at ch.hearc.ig.guideresto.presentation.CLI.showRestaurantsList(CLI.java:116)
+      //	at ch.hearc.ig.guideresto.presentation.CLI.proceedMainMenu(CLI.java:66)
+      //	at ch.hearc.ig.guideresto.presentation.CLI.start(CLI.java:48)
+      //	at ch.hearc.ig.guideresto.application.Main.main(Main.java:47)
     String restaurantsText = restaurants.stream()
         .map(r -> "\"" + r.getName() + "\" - " + r.getStreet() + " - "
             + r.getZipCode() + " " + r.getCityName())
@@ -102,10 +122,13 @@ public class CLI {
     return searchRestaurantByName(restaurants, choice);
   }
 
-  private void showRestaurantsList() {
+  // On ne devrait pas devoir `throws` une SQLException dans la CLI
+  private void showRestaurantsList() throws SQLException {
     println("Liste des restaurants : ");
 
-    Set<Restaurant> restaurants = fakeItems.getAllRestaurants();
+    // FIXME: On devrait utiliser l'injection de dépendance pour la CLI (c.f Main)
+    RestaurantMapper restaurantMapper = new RestaurantMapper();
+    Set<Restaurant> restaurants = restaurantMapper.findAll(DBOracleConnection.openConnection());
 
     Optional<Restaurant> maybeRestaurant = pickRestaurant(restaurants);
     // Si l'utilisateur a choisi un restaurant, on l'affiche, sinon on ne fait rien et l'application va réafficher le menu principal

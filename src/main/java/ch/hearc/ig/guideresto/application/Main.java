@@ -3,12 +3,14 @@ package ch.hearc.ig.guideresto.application;
 import ch.hearc.ig.guideresto.persistence.*;
 import ch.hearc.ig.guideresto.business.*;
 
+import ch.hearc.ig.guideresto.presentation.CLI;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws SQLException {
 
     // Différents tests :
     try {
@@ -38,14 +40,11 @@ public class Main {
       throw new RuntimeException(e);
     }
 
-    /*
     var scanner = new Scanner(System.in);
     var fakeItems = new FakeItems();
     var printStream = System.out;
     var cli = new CLI(scanner, printStream, fakeItems);
     cli.start();
-    */
-
   }
 
 }

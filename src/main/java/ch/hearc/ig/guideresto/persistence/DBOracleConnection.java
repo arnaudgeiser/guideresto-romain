@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class DBOracleConnection {
 
-    private static final String DBURL = "jdbc:oracle:thin:@db.ig.he-arc.ch:1521:ens";
-    private static final String DBUSER = "romain_jysch";
-    private static final String DBPWD = "romain_jysch";
+    private static final String DBURL = "jdbc:oracle:thin:@localhost:1521:xe";
+    private static final String DBUSER = "system";
+    private static final String DBPWD = "oracle";
     private static Connection cnn = null;
 
     public static Connection openConnection() throws SQLException {
@@ -22,7 +22,8 @@ public class DBOracleConnection {
             //cnn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             return cnn;
         } catch (SQLException e) {
-            throw new SQLException();
+            // Toujours passer la cause (Exception source) en paramètre
+            throw new SQLException(e);
         }
     }
 

@@ -15,6 +15,23 @@ import java.util.Set;
 
 public class RestaurantMapper {
 
+    // Copier/coller de findByName afin de pouvoir rechercher tous les restaurants.
+    public Set<Restaurant> findAll(Connection cnn) throws SQLException {
+        try(PreparedStatement statement = cnn.prepareStatement("SELECT NUMERO, NOM, DESCRIPTION, SITE_WEB FROM RESTAURANTS")) {
+            ResultSet resultSet = statement.executeQuery();
+            Set<Restaurant> restaurants = new HashSet<>();
+            while(resultSet.next()) {
+                // Comment recupérer les autres champs (la City par exemple?)? C'est un des objectifs de l'exercice
+                // Même question pour les évaluations
+                restaurants.add(new Restaurant(null, resultSet.getString("nom"), resultSet.getString("description"), resultSet.getString("site_web"), null, null, null));
+            }
+            return restaurants;
+        } catch(SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     // Trouver une ville par son nom :
     public List<Restaurant> findByName(Connection cnn, String restaurantName) throws SQLException {
         try(PreparedStatement statement = cnn.prepareStatement("SELECT NUMERO, NOM, DESCRIPTION, SITE_WEB FROM RESTAURANTS WHERE NOM = ?")) {
@@ -22,6 +39,8 @@ public class RestaurantMapper {
             ResultSet resultSet = statement.executeQuery();
             List<Restaurant> restaurants = new ArrayList<>();
             while(resultSet.next()) {
+                // Comment recupérer les autres champs (la City par exemple?)? C'est un des objectifs de l'exercice
+                // Même question pour les évaluations
                 restaurants.add(new Restaurant(null, resultSet.getString("nom"), resultSet.getString("description"), resultSet.getString("site_web"), null, null, null));
             }
             return restaurants;
@@ -31,7 +50,7 @@ public class RestaurantMapper {
     }
 
     // Ajouter un nouveau restaurant :
-    public void insert(Connection cnn, Restaurant restaurant) throws SQLException {
+    public void insert(Connection cnn, Restaurant restaurant) {
         try (PreparedStatement pStmt = cnn.prepareStatement("INSERT INTO RESTAURANTS (NOM, ADRESSE, DESCRIPTION, SITE_WEB, FK_TYPE, FK_VILL) VALUES (?, ?, ?, ?, ?, ?)")) {
             pStmt.setString(1, restaurant.getName());
             pStmt.setString(2, restaurant.getStreet());
